@@ -206,6 +206,34 @@ class Options
     private $isRemoteEnabled = false;
 
     /**
+     * List of allowed remote hosts
+     *
+     * Each value of the array must be a valid hostname.
+     *
+     * This will be used to filter which resources can be loaded in combination with
+     * isRemoteEnabled. If isRemoteEnabled is FALSE, then this will have no effect.
+     *
+     * Leave to NULL to allow any remote host.
+     *
+     * @var array|null
+     */
+    private $allowedRemoteHosts = null;
+
+    /**
+     * Enable PDF/A-3 compliance mode
+     *
+     * ==== EXPERIMENTAL ====
+     * This feature is currently only supported with the CPDF backend and will
+     * have no effect if used with any other.
+     *
+     * Currently this mode only takes care of adding the necessary metadata, output intents, etc.
+     * It does not enforce font embedding, it's up to you to embed the fonts you plan on using.
+     *
+     * @var bool
+     */
+    private $isPdfAEnabled = false;
+
+    /**
      * Enable inline JavaScript
      *
      * If this setting is set to true then DOMPDF will automatically insert
@@ -390,6 +418,10 @@ class Options
                 $this->setIsPhpEnabled($value);
             } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
                 $this->setIsRemoteEnabled($value);
+            } elseif ($key === 'allowedRemoteHosts' || $key === 'allowed_remote_hosts') {
+                $this->setAllowedRemoteHosts($value);
+            } elseif ($key === 'isPdfAEnabled' || $key === 'is_pdf_a_enabled' || $key === 'enable_pdf_a') {
+                $this->setIsPdfAEnabled($value);
             } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
                 $this->setIsJavascriptEnabled($value);
             } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
@@ -459,6 +491,10 @@ class Options
             return $this->getIsPhpEnabled();
         } elseif ($key === 'isRemoteEnabled' || $key === 'is_remote_enabled' || $key === 'enable_remote') {
             return $this->getIsRemoteEnabled();
+        } elseif ($key === 'allowedRemoteHosts' || $key === 'allowed_remote_hosts') {
+            return $this->getAllowedProtocols();
+        } elseif ($key === 'isPdfAEnabled' || $key === 'is_pdf_a_enabled' || $key === 'enable_pdf_a') {
+            $this->getIsPdfAEnabled();
         } elseif ($key === 'isJavascriptEnabled' || $key === 'is_javascript_enabled' || $key === 'enable_javascript') {
             return $this->getIsJavascriptEnabled();
         } elseif ($key === 'isHtml5ParserEnabled' || $key === 'is_html5_parser_enabled' || $key === 'enable_html5_parser') {
@@ -1062,6 +1098,58 @@ class Options
     public function isRemoteEnabled()
     {
         return $this->getIsRemoteEnabled();
+    }
+
+    /**
+     * @param array|null $allowedRemoteHosts
+     * @return $this
+     */
+    public function setAllowedRemoteHosts($allowedRemoteHosts)
+    {
+        if (is_array($allowedRemoteHosts)) {
+            // Set hosts to lowercase
+            foreach ($allowedRemoteHosts as &$host) {
+                $host = mb_strtolower($host);
+            }
+
+            unset($host);
+        }
+
+        $this->allowedRemoteHosts = $allowedRemoteHosts;
+    }
+
+    /**
+     * @param boolean $isRemoteEnabled
+     * @return $this
+     */
+    public function setIsPdfAEnabled($isPdfAEnabled)
+    {
+        $this->isPdfAEnabled = $isPdfAEnabled;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getAllowedRemoteHosts()
+    {
+        return $this->allowedRemoteHosts;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getIsPdfAEnabled()
+    {
+        return $this->isPdfAEnabled;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isPdfAEnabled()
+    {
+        return $this->getIsPdfAEnabled();
     }
 
     /**
